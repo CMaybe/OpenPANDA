@@ -8,7 +8,7 @@ To achieve real-time performance for robot control, you need to install a real-t
 
 
 
-## Devcontainer
+## Getting Started on Devcontainer
 This repository is configured with a `devcontainer` for Visual Studio Code, allowing you to quickly set up and use the development environment using Docker.
 
 ### 1. Clone the Repository
@@ -31,12 +31,11 @@ docker exec -it dev-panda-project /bin/bash
 ```
 
 
-
 ## Getting Started on Your Machine
 
 If you prefer not to use VSCode or Docker, follow these steps to set up and run the project directly on your machine:
 
-###  0. Dependencies
+###  1. Install Dependencies
 To ensure the proper functionality of this project, you need to install the following dependencies:
 
 1. **OpenSai**
@@ -49,13 +48,16 @@ To ensure the proper functionality of this project, you need to install the foll
 
 Please refer to the respective repositories for installation instructions and further details.
 
-### 1. Clone the Repository
+### 2. Clone the Repository
 
 ```bash
 git clone https://github.com/CMaybe/OpenPANDA.git
+cd OpenPANDA
 ```
 
-### 2.build
+
+## Build & Run
+### 1. Build
 
 ```bash
 mkdir build && cd build
@@ -63,7 +65,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
-### Run
+### 2. Run
 ```bash
 cd ../bin
 sudo ./PandaSim
