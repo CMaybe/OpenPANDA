@@ -4,10 +4,10 @@ Simulation::Simulation(shared_ptr<Sai2Model::Sai2Model> robot,
                        shared_ptr<Sai2Simulation::Sai2Simulation> sim,
                        std::mutex &mutex_simulation,
                        double sim_freq)
-    : _robot(robot), _sim(sim), _mutex_simulation(mutex_simulation), _sim_freq(sim_freq), _fSimulationRunning(true)
+    : robot_(robot), sim_(sim), mutex_simulation_(mutex_simulation), _sim_freq(sim_freq), fSimulationRunning_(true)
 {
-    _timer = make_unique<Sai2Common::LoopTimer>(_sim_freq);
-    _robot_name = "PANDA"; // Adjust this based on your actual robot name
+    timer_ = make_unique<Sai2Common::LoopTimer>(_sim_freq);
+    robot_name_ = "PANDA"; // Adjust this based on your actual robot name
 }
 
 Simulation::~Simulation()
@@ -17,47 +17,47 @@ Simulation::~Simulation()
 
 void Simulation::start()
 {
-    _fSimulationRunning = true;
-    _thread = std::thread(&Simulation::simulationLoop, this);
+    fSimulationRunning_ = true;
+    thread_ = std::thread(&Simulation::simulationLoop, this);
 }
 
 void Simulation::stop()
 {
-    _fSimulationRunning = false;
-    if (_thread.joinable())
+    fSimulationRunning_ = false;
+    if (thread_.joinable())
     {
-        _thread.join(); // Wait for the thread to finish execution
+        thread_.join(); // Wait for the thread to finish execution
     }
 }
 
 void Simulation::updateTourque(const Vector<double, 7> &torque)
 {
-    lock_guard<mutex> lock(_mutex_simulation);
-    this->_joint_torque = torque;
+    lock_guard<mutex> lock(mutex_simulation_);
+    this->joint_torque_ = torque;
 }
 
 void Simulation::updateJointPosition(const Vector<double, 7> q)
 {
-    lock_guard<mutex> lock(_mutex_simulation);
+    lock_guard<mutex> lock(mutex_simulation_);
     this->q_ = q;
 }
 
 void Simulation::simulationLoop()
 {
-    _sim->setTimestep(1.0 / _sim_freq);
+    sim_->setTimestep(1.0 / _sim_freq);
 
-    while (_fSimulationRunning)
+    while (fSimulationRunning_)
     {
-        _timer->waitForNextLoop();
+        timer_->waitForNextLoop();
         {
-            lock_guard<mutex> lock(_mutex_simulation);
-            // _sim->setJointTorques(_robot_name, _joint_torque);
-            _sim->setJointPositions(_robot_name, q_);
-            _robot->setQ(_sim->getJointPositions(_robot_name));
-            _robot->updateModel();
-            _sim->integrate();
+            lock_guard<mutex> lock(mutex_simulation_);
+            // sim_->setJointTorques(robot_name_, joint_torque_);
+            sim_->setJointPositions(robot_name_, q_);
+            robot_->setQ(sim_->getJointPositions(robot_name_));
+            robot_->updateModel();
+            sim_->integrate();
         }
     }
-    _timer->stop();
-    _timer->printInfoPostRun();
+    timer_->stop();
+    timer_->printInfoPostRun();
 }

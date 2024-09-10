@@ -43,23 +43,23 @@ private:
     // Control loop function
     void controlLoop();
 
-    shared_ptr<Sai2Model::Sai2Model> _robot;
-    shared_ptr<Sai2Simulation::Sai2Simulation> _sim;
-    unique_ptr<Sai2Common::LoopTimer> _timer;
-    shared_ptr<Sai2Primitives::MotionForceTask> _motion_force_task;
-    shared_ptr<Sai2Primitives::JointTask> _joint_task;
-    thread _thread;
-    atomic<bool> _fControlRunning;
-    Vector<double, 7> _control_torques;
-    Vector<double, 7> _ui_torques;
-    Vector<double, 7> _initial_q;
+    shared_ptr<Sai2Model::Sai2Model> robot_;
+    shared_ptr<Sai2Simulation::Sai2Simulation> sim_;
+    unique_ptr<Sai2Common::LoopTimer> timer_;
+    shared_ptr<Sai2Primitives::MotionForceTask> motion_force_task_;
+    shared_ptr<Sai2Primitives::JointTask> joint_task_;
+    thread thread_;
+    atomic<bool> fControlRunning_;
+    Vector<double, 7> control_torques_;
+    Vector<double, 7> ui_torques_;
+    Vector<double, 7> initial_q_;
 
-    std::mutex &_mutex_control, &_mutex_simulation;
+    std::mutex &mutex_control_, &mutex_simulation_;
 
     // Control parameters
-    double _control_freq;
-    string _robot_name;
-    int _dof;
+    double control_freq_;
+    string robot_name_;
+    int dof_;
 };
 
 #endif // CONTROL_HPP

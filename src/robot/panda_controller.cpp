@@ -247,14 +247,12 @@ void PandaController::controlLoop()
             error_sum_ += error * 0.02;
             desired_force_torque.head(3) = (kp_.topLeftCorner(3, 3) * error.head(3) + kd_.topLeftCorner(3, 3) * (velocity_d - Jv * dq)) + ki_.topLeftCorner(3, 3) * error_sum_.head(3);
             desired_force_torque.tail(3) = (kp_.bottomRightCorner(3, 3) * error.tail(3) - kd_.bottomRightCorner(3, 3) * (Jw * dq)) + ki_.bottomRightCorner(3, 3) * error_sum_.tail(3);
-            // tau_null = 2.0 * (-q) + 0.5 * (-dq);
-            tau_null = (J_T * J).diagonal();
+            tau_null = 2.0 * (-q) + 0.5 * (-dq);
             tau_task << Jv.transpose() * desired_force_torque.head(3) + Jw.transpose() * desired_force_torque.tail(3) + Null_projector * tau_null;
 
             tau_cmd = tau_task;
-            std::cerr << tau_cmd.transpose() << std::endl;
 
-            // tau_cmd.setZero();
+            tau_cmd.setZero();
             std::array<double, 7> tau_d_array{};
             Eigen::VectorXd::Map(&tau_d_array[0], 7) = tau_cmd;
             return tau_d_array;

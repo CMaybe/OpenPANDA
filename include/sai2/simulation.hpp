@@ -41,18 +41,18 @@ private:
     // Simulation loop function
     void simulationLoop();
 
-    shared_ptr<Sai2Model::Sai2Model> _robot;
-    shared_ptr<Sai2Simulation::Sai2Simulation> _sim;
-    unique_ptr<Sai2Common::LoopTimer> _timer;
-    thread _thread;
-    atomic<bool> _fSimulationRunning;
-    Vector<double, 7> _joint_torque, _joint_position;
-    Vector<double, 7> _ui_torques;
-    std::mutex &_mutex_simulation;
+    shared_ptr<Sai2Model::Sai2Model> robot_;
+    shared_ptr<Sai2Simulation::Sai2Simulation> sim_;
+    unique_ptr<Sai2Common::LoopTimer> timer_;
+    thread thread_;
+    atomic<bool> fSimulationRunning_;
+    Vector<double, 7> joint_torque_, joint_position_;
+    Vector<double, 7> ui_torques_;
+    std::mutex &mutex_simulation_;
 
     // Parameters for simulation
     double _sim_freq;
-    string _robot_name;
+    string robot_name_;
     Eigen::Vector<double, 7> q_;
 };
 
