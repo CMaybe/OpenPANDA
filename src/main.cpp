@@ -69,14 +69,16 @@ int main()
     control_torques = Vector<double, 7>::Zero(robot->dof());
 
     // Create Simulation and Control objects
-    // PandaController panda_controller(robot_ip, gripper_ip, mutex_panda);
     Simulation simulation(robot, sim, mutex_simulation, 10.0);
-    // Control control(robot, sim, mutex_control, mutex_simulation);
-
-    // Start simulation and control threads
     simulation.start();
+
+		// comment for just simulation
+    PandaController panda_controller(robot_ip, gripper_ip, mutex_panda);
+    panda_controller.start();
+
+    // uncomment for just simulation
+    // Control control(robot, sim, mutex_control, mutex_simulation); 
     // control.start();
-    // panda_controller.start();
 
     while (graphics->isWindowOpen())
     {
@@ -107,16 +109,19 @@ int main()
             ui_torques = graphics->getUITorques(robot_name);
         }
         {
+						// comment for just simulation
+            simulation.updateJointPosition(panda_controller.getRobotJointPosition());
+
+						// uncomment for just simulation
             // simulation.updateTourque(control.getTorque());
-            // simulation.updateJointPosition(panda_controller.getRobotJointPosition());
         }
     }
 
     // Stop simulation and control threads
     fSimulationRunning = false;
     simulation.stop();
+    panda_controller.stop();
     // control.stop();
-    // panda_controller.stop();
 
     return 0;
 }
