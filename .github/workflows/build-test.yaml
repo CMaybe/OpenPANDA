@@ -1,0 +1,42 @@
+name: build-test
+
+on:
+  push:
+    branches: ["base", "develop/**"]
+    paths: 
+  pull_request:
+    branches: ["base"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+    container:
+      image: ghcr.io/cmaybe/dev-panda:latest
+      options: --user root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Configure CMake
+        run: |
+          cmake \
+            -S . \
+            -B build \
+            -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: |
+          cmake \
+            --build build \
+            --config ${{env.BUILD_TYPE}}
+
+      
