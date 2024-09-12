@@ -4,6 +4,9 @@ on:
   push:
     branches: ["base", "develop/**"]
     paths: 
+      - "src/**"
+      - "include/**"
+      - ".github/workflows/build-test.yaml"
   pull_request:
     branches: ["base"]
 
@@ -23,18 +26,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure CMake
-        run: |
-          cmake \
-            -S . \
-            -B build \
-            -G "Unix Makefiles" \
-            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
       - name: Build
         run: |
-          cmake \
-            --build build \
-            --config ${{env.BUILD_TYPE}}
+          cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          cmake --build build --config ${{ env.BUILD_TYPE }}
 
       
