@@ -12,7 +12,7 @@ Control::Control(shared_ptr<Sai2Model::Sai2Model> robot,
     string link_name = "end-effector";
 
     timer_ = make_unique<Sai2Common::LoopTimer>(control_freq_);
-    robot_name_ = "PANDA"; // Adjust this based on your actual robot name
+    robot_name_ = "PANDA";  // Adjust this based on your actual robot name
 
     fControlRunning_ = true;
     control_torques_ = Vector<double, 7>::Zero();
@@ -30,7 +30,7 @@ Control::Control(shared_ptr<Sai2Model::Sai2Model> robot,
 
 Control::~Control()
 {
-    stop(); // Ensure that the thread is stopped before destruction
+    stop();  // Ensure that the thread is stopped before destruction
 }
 
 void Control::start()
@@ -43,7 +43,7 @@ void Control::stop()
     fControlRunning_ = false;
     if (thread_.joinable())
     {
-        thread_.join(); // Wait for the thread to finish execution
+        thread_.join();  // Wait for the thread to finish execution
     }
 }
 

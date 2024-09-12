@@ -1,15 +1,16 @@
 #ifndef PANDA_CONTROLLER_HPP
 #define PANDA_CONTROLLER_HPP
 
+#include <franka/gripper.h>
+#include <franka/robot.h>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Jacobi>
-#include <franka/robot.h>
-#include <franka/gripper.h>
 #include <array>
 #include <functional>
-#include <thread>
 #include <mutex>
+#include <thread>
 
 class PandaController
 {
@@ -42,4 +43,4 @@ private:
     bool running_;
 };
 
-#endif //
+#endif  //

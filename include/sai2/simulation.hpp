@@ -3,15 +3,16 @@
 #ifndef SIMULATION_HPP
 #define SIMULATION_HPP
 
+#include <Eigen/Dense>
+#include <atomic>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <thread>
-#include <atomic>
-#include <Eigen/Dense>
+
+#include "Sai2Common.h"
 #include "Sai2Model.h"
 #include "Sai2Simulation.h"
-#include "Sai2Common.h"
 
 using namespace Eigen;
 using namespace std;
@@ -56,4 +57,4 @@ private:
     Eigen::Vector<double, 7> q_;
 };
 
-#endif // SIMULATION_HPP
+#endif  // SIMULATION_HPP

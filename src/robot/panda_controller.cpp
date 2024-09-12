@@ -1,16 +1,16 @@
 #include "robot/panda_controller.hpp"
-#include <iostream>
-#include <cmath>
+
+#include <franka/duration.h>
 #include <franka/exception.h>
 #include <franka/model.h>
-#include <franka/duration.h>
+
 #include <array>
+#include <cmath>
+#include <iostream>
 
 PandaController::PandaController(const std::string &robot_ip, const std::string &gripper_ip, std::mutex &mutex_panda)
-    : robot_ip_(robot_ip), gripper_ip_(gripper_ip), robot_(robot_ip), mutex_panda_(mutex_panda), gripper_(gripper_ip),
-      time_step_(0), trajectory_time_(21.0), running_(false)
+    : robot_ip_(robot_ip), gripper_ip_(gripper_ip), robot_(robot_ip), mutex_panda_(mutex_panda), gripper_(gripper_ip), time_step_(0), trajectory_time_(21.0), running_(false)
 {
-
     const double translational_gain{120.0};
     const double rotational_gain{10.0};
     kp_.resize(6, 6);
@@ -121,17 +121,17 @@ void PandaController::controlLoop()
             std::array<double, 7> coriolis_array = model.coriolis(robot_state);
             std::array<double, 7> gravity_array = model.gravity(robot_state);
 
-            Eigen::Map<const Eigen::Matrix<double, 6, 7>> J(jacobian_array.data());  // J matrix
-            Eigen::Map<const Eigen::Matrix<double, 7, 1>> q(robot_state.q.data());   // Joint q
-            Eigen::Map<const Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data()); // Joint qdot
+            Eigen::Map<const Eigen::Matrix<double, 6, 7>> J(jacobian_array.data());   // J matrix
+            Eigen::Map<const Eigen::Matrix<double, 7, 1>> q(robot_state.q.data());    // Joint q
+            Eigen::Map<const Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data());  // Joint qdot
             Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
             Eigen::Vector3d position(transform.translation());
             Eigen::Matrix3d rotation(transform.rotation());
 
-            Eigen::Map<const Eigen::Matrix<double, 7, 7>> mass_matrix(mass_array.data()); // Mass matrix
+            Eigen::Map<const Eigen::Matrix<double, 7, 7>> mass_matrix(mass_array.data());  // Mass matrix
             Eigen::Map<const Eigen::Matrix<double, 7, 1>> coriolis(coriolis_array.data());
             Eigen::Map<const Eigen::Matrix<double, 7, 1>> gravity(gravity_array.data());
-            Eigen::Map<const Eigen::Matrix<double, 7, 1>> tau_J_(robot_state.tau_J.data()); // Joint torque
+            Eigen::Map<const Eigen::Matrix<double, 7, 1>> tau_J_(robot_state.tau_J.data());  // Joint torque
 
             Eigen::Matrix<double, 3, 7> Jv = J.topRows(3);
             Eigen::Matrix<double, 3, 7> Jw = J.bottomRows(3);

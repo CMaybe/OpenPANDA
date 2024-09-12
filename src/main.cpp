@@ -1,16 +1,18 @@
 // main.cpp
 
-#include <iostream>
-#include <signal.h>
-#include <memory>
-#include <thread>
-#include <mutex>
 #include <Sai2Graphics.h>
 #include <Sai2Model.h>
 #include <Sai2Simulation.h>
-#include "sai2/simulation.hpp"
-#include "sai2/control.hpp"
+#include <signal.h>
+
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <thread>
+
 #include "robot/panda_controller.hpp"
+#include "sai2/control.hpp"
+#include "sai2/simulation.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -72,12 +74,12 @@ int main()
     Simulation simulation(robot, sim, mutex_simulation, 10.0);
     simulation.start();
 
-		// comment for just simulation
+    // comment for just simulation
     PandaController panda_controller(robot_ip, gripper_ip, mutex_panda);
     panda_controller.start();
 
     // uncomment for just simulation
-    // Control control(robot, sim, mutex_control, mutex_simulation); 
+    // Control control(robot, sim, mutex_control, mutex_simulation);
     // control.start();
 
     while (graphics->isWindowOpen())
@@ -109,10 +111,10 @@ int main()
             ui_torques = graphics->getUITorques(robot_name);
         }
         {
-						// comment for just simulation
+            // comment for just simulation
             simulation.updateJointPosition(panda_controller.getRobotJointPosition());
 
-						// uncomment for just simulation
+            // uncomment for just simulation
             // simulation.updateTourque(control.getTorque());
         }
     }

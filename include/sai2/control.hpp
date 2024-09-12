@@ -3,18 +3,19 @@
 #ifndef CONTROL_HPP
 #define CONTROL_HPP
 
+#include <Eigen/Dense>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <Eigen/Dense>
+
 #include "Sai2Model.h"
 #include "Sai2Simulation.h"
+#include "logger/Logger.h"
 #include "tasks/JointTask.h"
 #include "tasks/MotionForceTask.h"
 #include "timer/LoopTimer.h"
-#include "logger/Logger.h"
 
 using namespace Eigen;
 using namespace std;
@@ -62,4 +63,4 @@ private:
     int dof_;
 };
 
-#endif // CONTROL_HPP
+#endif  // CONTROL_HPP

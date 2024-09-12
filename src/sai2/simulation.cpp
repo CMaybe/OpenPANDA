@@ -7,12 +7,12 @@ Simulation::Simulation(shared_ptr<Sai2Model::Sai2Model> robot,
     : robot_(robot), sim_(sim), mutex_simulation_(mutex_simulation), _sim_freq(sim_freq), fSimulationRunning_(true)
 {
     timer_ = make_unique<Sai2Common::LoopTimer>(_sim_freq);
-    robot_name_ = "PANDA"; // Adjust this based on your actual robot name
+    robot_name_ = "PANDA";  // Adjust this based on your actual robot name
 }
 
 Simulation::~Simulation()
 {
-    stop(); // Ensure that the thread is stopped before destruction
+    stop();  // Ensure that the thread is stopped before destruction
 }
 
 void Simulation::start()
@@ -26,7 +26,7 @@ void Simulation::stop()
     fSimulationRunning_ = false;
     if (thread_.joinable())
     {
-        thread_.join(); // Wait for the thread to finish execution
+        thread_.join();  // Wait for the thread to finish execution
     }
 }
 

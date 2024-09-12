@@ -1,9 +1,10 @@
-#include <sys/mman.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 #include <unistd.h>
+
 #include <cstring>
-#include <system_error>
 #include <string>
+#include <system_error>
 
 template <typename T>
 class SharedMemory
@@ -49,8 +50,8 @@ public:
     }
 
 private:
-    std::string _name; // Name of the shared memory
-    std::size_t _size; // Size of the shared memory
-    int _fd;           // File descriptor for the shared memory
-    void *_data;       // Mapped memory address
+    std::string _name;  // Name of the shared memory
+    std::size_t _size;  // Size of the shared memory
+    int _fd;            // File descriptor for the shared memory
+    void *_data;        // Mapped memory address
 };
