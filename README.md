@@ -56,6 +56,43 @@ cd OpenPANDA
 ```
 
 
+## Configuration Files
+### c_cpp_properties.json
+This configuration file is used by VS Code to set up IntelliSense and include paths for C++ development.
+```json
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/sai2/**",
+                "/usr/include/eigen3"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
+```
+
+### settings.json
+This file contains general VS Code settings to enhance the development experience.
+```json
+{
+	"editor.formatOnSave": true,
+	"editor.tabSize": 4, // Set tab size
+	"[cpp]": {
+		"editor.defaultFormatter": "xaver.clang-format"
+	},
+}
+```
+
 ## Build & Run
 ### 1. Build
 
