@@ -7,9 +7,48 @@
 To achieve real-time performance for robot control, you need to install a real-time kernel on your system. The RT kernel is specifically designed to handle time-sensitive operations with minimal latency.
 
 
-
 ## Getting Started on Devcontainer
 This repository is configured with a `devcontainer` for Visual Studio Code, allowing you to quickly set up and use the development environment using Docker.
+
+### 0. Install & Setup Docker
+
+***1. Set up Docker's apt repository.***
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+
+***2. To install the latest version, run***
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+***Option: Manage Docker as a non-root user***
+
+```bash
+# Create the docker group.
+sudo groupadd docker
+
+# Add your user to the docker group.
+sudo usermod -aG docker $USER
+
+# Activate the changes to groups.
+newgrp docker
+
+# Verify that you can run docker commands without sudo.
+docker run hello-world
+```
 
 ### 1. Clone the Repository
 ```bash
@@ -21,13 +60,14 @@ Open the cloned repository in Visual Studio Code. VSCode will detect the devcont
 
 ### 3. Reopen in Container
 
-Follow the prompt to reopen the repository in the Docker container. VSCode will build and start the container as defined in the .devcontainer directory, setting up the development environment according to the configuratio
+Follow the prompt to reopen the repository in the Docker container. VSCode will build and start the container as defined in the .devcontainer directory, setting up the development environment according to the configuratio.
 
 ### Option: Access the Container Directly
 If you prefer to access the container directly, you can use the following command:
 
 ```bash
-docker exec -it dev-panda-project /bin/bash
+xhost +local:docker
+sudo docker exec -it dev-panda-project /bin/bash # or docker exec -it dev-panda-project /bin/bash
 ```
 
 
