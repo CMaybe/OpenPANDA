@@ -6,14 +6,14 @@
 	"mounts": [
 		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
 	],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/panda/panda_ws/openPANDA,type=bind",
-	"workspaceFolder": "/home/panda/panda_ws/openPANDA,type=bind",
-	
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/panda/openPANDA,type=bind",
+	"workspaceFolder": "/home/panda/openPANDA",
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}"
 	},
 	"runArgs": [
-		"--name", "dev-panda-project",
+		"--name",
+		"dev-panda-project",
 		"--cap-add=SYS_PTRACE",
 		"--net=host",
 		"--security-opt=seccomp=unconfined",

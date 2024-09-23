@@ -4,7 +4,6 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 
 ARG PROJECT_NAME=openPANDA
-ARG WORKSPACE_NAME=panda_ws
 ENV USER_NAME=panda
 ENV GROUP_NAME=cau
 
@@ -22,10 +21,10 @@ RUN groupadd --gid ${USER_GID} ${GROUP_NAME} \
 
 
 # Make workspace 
-RUN mkdir -p /home/${USER_NAME}/${WORKSPACE_NAME}/src/${PROJECT_NAME} \
-	&& chown -R ${USER_NAME}:${GROUP_NAME} /home/${USER_NAME}/${WORKSPACE_NAME}
 ENV HOME /home/${USER_NAME}
-ENV WORKSPACE ${HOME}/${WORKSPACE_NAME}
+ENV WORKSPACE ${HOME}/${PROJECT_NAME}
+RUN mkdir -p ${WORKSPACE} \
+	&& chown -R ${USER_NAME}:${GROUP_NAME} ${WORKSPACE}
 
 # Shell
 USER ${USER_NAME}
