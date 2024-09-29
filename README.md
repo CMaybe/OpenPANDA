@@ -110,9 +110,9 @@ This configuration file is used by VS Code to set up IntelliSense and include pa
                 "/usr/include/eigen3"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+			"cppStandard": "c++17",
             "intelliSenseMode": "linux-gcc-x64",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
