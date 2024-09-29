@@ -28,7 +28,6 @@
 			},
 			"extensions": [
 				"twxs.cmake",
-				"ms-iot.vscode-ros",
 				"xaver.clang-format",
 				"ms-vscode-remote.vscode-remote-extensionpack",
 				"ms-vscode.cpptools-extension-pack",
