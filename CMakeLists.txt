@@ -15,7 +15,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/utils)
 
 # include Franka for Panda
 find_package(Franka REQUIRED)
@@ -82,6 +82,7 @@ set(SOURCES
     src/sai2/control.cpp
     src/sai2/simulation.cpp
     src/robot/panda_controller.cpp
+	src/utils/trajectory_manager.tpp
 )
 
 # Headers
@@ -89,7 +90,9 @@ set(HEADERS
     include/sai2/control.hpp 
     include/sai2/simulation.hpp
     include/robot/panda_controller.hpp
+	include/utils/trajectory_manager.hpp
 )
+
 ADD_EXECUTABLE (PandaSim ${SOURCES} ${HEADERS})
 
 # and link the library against the executable
