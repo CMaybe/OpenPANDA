@@ -8,6 +8,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "utils/trajectory_manager.hpp"
+
 PandaController::PandaController(const std::string &robot_ip, const std::string &gripper_ip, std::mutex &mutex_panda)
     : robot_ip_(robot_ip), gripper_ip_(gripper_ip), robot_(robot_ip), mutex_panda_(mutex_panda), gripper_(gripper_ip), time_step_(0), trajectory_time_(21.0), running_(false)
 {
@@ -29,66 +31,12 @@ PandaController::PandaController(const std::string &robot_ip, const std::string 
     ki_.setZero();
     ki_.topLeftCorner(3, 3) << 1 * Eigen::MatrixXd::Identity(3, 3);
     ki_.bottomRightCorner(3, 3) << 0.01 * Eigen::MatrixXd::Identity(3, 3);
-
-    traj_point_ << 0.4, 0.4, 0.4, 0.4,
-        -0.3, -0.3, 0.3, 0.3,
-        0.1, 0.5, 0.5, 0.1;
-
-    for (int i = 0; i < 8; ++i)
-    {
-        time_point_[i] = trajectory_time_ / 7 * i;
-    }
 }
 
 Eigen::Vector<double, 7> PandaController::getRobotJointPosition() const
 {
     std::lock_guard<std::mutex> lock(mutex_panda_);
     return this->q_;
-}
-
-Eigen::Matrix<double, 2, 3> PandaController::generateTrajectory(double time, Eigen::Matrix<double, 2, 3> begin, Eigen::Matrix<double, 2, 3> end, double begin_time, double end_time)
-{
-    Eigen::Matrix<double, 4, 1> x, y, z, coff_x, coff_y, coff_z;
-    Eigen::Matrix<double, 4, 4> coeff;
-    Eigen::Matrix<double, 2, 3> result;
-
-    x.setZero();
-    y.setZero();
-    z.setZero();
-    coeff.setIdentity();
-    x.topRows(2) = begin.col(0);
-    x.bottomRows(2) = end.col(0);
-    y.topRows(2) = begin.col(1);
-    y.bottomRows(2) = end.col(1);
-    z.topRows(2) = begin.col(2);
-    z.bottomRows(2) = end.col(2);
-
-    for (int i = 0; i < 4; ++i)
-    {
-        coeff(0, i) = pow(begin_time, i);
-        if (i > 0)
-            coeff(1, i) = i * pow(begin_time, i - 1);
-        coeff(2, i) = pow(end_time, i);
-        if (i > 0)
-            coeff(3, i) = i * pow(end_time, i - 1);
-    }
-    coff_x = coeff.inverse() * x;
-    coff_y = coeff.inverse() * y;
-    coff_z = coeff.inverse() * z;
-
-    Eigen::Matrix<double, 2, 4> time_pow;
-    time_pow.setZero();
-    for (int i = 0; i < 4; ++i)
-    {
-        time_pow(0, i) = pow(time, i);
-        time_pow(1, i) = i * pow(time, i - 1);
-    }
-
-    result.col(0) = time_pow * coff_x;
-    result.col(1) = time_pow * coff_y;
-    result.col(2) = time_pow * coff_z;
-
-    return result;
 }
 
 void PandaController::controlLoop()
@@ -109,6 +57,27 @@ void PandaController::controlLoop()
         Eigen::Matrix3d rotation_d = Eigen::Matrix3d::Identity();
         rotation_d(1, 1) = -1;
         rotation_d(2, 2) = -1;
+
+        std::vector<Eigen::Vector<double, 3>> waypoints;
+        std::vector<double> time_steps;
+
+        waypoints.push_back(Eigen::Vector3d(0.4, -0.3, 0.1));
+        waypoints.push_back(Eigen::Vector3d(0.4, -0.3, 0.5));
+        waypoints.push_back(Eigen::Vector3d(0.4, 0.3, 0.5));
+        waypoints.push_back(Eigen::Vector3d(0.4, 0.3, 0.1));
+        waypoints.push_back(Eigen::Vector3d(0.4, 0.3, 0.5));
+        waypoints.push_back(Eigen::Vector3d(0.4, -0.3, 0.5));
+        waypoints.push_back(Eigen::Vector3d(0.4, -0.3, 0.1));
+
+        time_steps.push_back(3);
+        time_steps.push_back(6);
+        time_steps.push_back(9);
+        time_steps.push_back(12);
+        time_steps.push_back(15);
+        time_steps.push_back(18);
+        time_steps.push_back(21);
+
+        TrajectoryManager<3> trajectory_manaer(initial_position, waypoints, time_steps);
 
         auto force_control_callback = [&](const franka::RobotState &robot_state, franka::Duration period) -> franka::Torques
         {
@@ -135,14 +104,6 @@ void PandaController::controlLoop()
 
             Eigen::Matrix<double, 3, 7> Jv = J.topRows(3);
             Eigen::Matrix<double, 3, 7> Jw = J.bottomRows(3);
-            Eigen::Matrix<double, 6, 6> lambda_inv = J * mass_matrix.inverse() * J.transpose();
-            Eigen::Matrix<double, 6, 6> lambda = lambda_inv.inverse();
-
-            Eigen::Matrix<double, 3, 3> lambda_v_inv_ = Jv * mass_matrix.inverse() * Jv.transpose();
-            Eigen::Matrix<double, 3, 3> lambda_v_ = lambda_v_inv_.inverse();
-
-            Eigen::Matrix<double, 3, 3> lambda_w_inv_ = Jw * mass_matrix.inverse() * Jw.transpose();
-            Eigen::Matrix<double, 3, 3> lambda_w_ = lambda_w_inv_.inverse();
 
             Eigen::VectorXd desired_force_torque(6), tau_cmd(7);
             desired_force_torque.setZero();
@@ -179,65 +140,14 @@ void PandaController::controlLoop()
             if (time_step_ > 0)
             {
                 time_step_ += period.toSec();
-                if (time_step_ < time_point_[1])
+                traj_result = trajectory_manaer.getTrajectory(time_step_);
+
+                position_d = traj_result.row(0).transpose();
+                velocity_d = traj_result.row(1).transpose();
+
+                if (time_step_ > trajectory_time_)
                 {
-                    begin.row(0) = initial_position.transpose();
-                    end.row(0) = traj_point_.col(0).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, 0, time_point_[1]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[2])
-                {
-                    begin.row(0) = traj_point_.col(0).transpose();
-                    end.row(0) = traj_point_.col(1).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[1], time_point_[2]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[3])
-                {
-                    begin.row(0) = traj_point_.col(1).transpose();
-                    end.row(0) = traj_point_.col(2).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[2], time_point_[3]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[4])
-                {
-                    begin.row(0) = traj_point_.col(2).transpose();
-                    end.row(0) = traj_point_.col(3).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[3], time_point_[4]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[5])
-                {
-                    begin.row(0) = traj_point_.col(3).transpose();
-                    end.row(0) = traj_point_.col(2).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[4], time_point_[5]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[6])
-                {
-                    begin.row(0) = traj_point_.col(2).transpose();
-                    end.row(0) = traj_point_.col(1).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[5], time_point_[6]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ < time_point_[7])
-                {
-                    begin.row(0) = traj_point_.col(1).transpose();
-                    end.row(0) = traj_point_.col(0).transpose();
-                    traj_result = generateTrajectory(time_step_, begin, end, time_point_[6], time_point_[7]);
-                    position_d = traj_result.row(0).transpose();
-                    velocity_d = traj_result.row(1).transpose();
-                }
-                else if (time_step_ > trajectory_time_)
-                {
-                    time_step_ = time_point_[1];
+                    time_step_ = 3;
                 }
             }
 

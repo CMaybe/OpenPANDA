@@ -28,13 +28,13 @@ private:
     franka::Robot robot_;
     franka::Gripper gripper_;
 
-    double time_step_;
-    Eigen::Matrix<double, 3, 4> traj_point_;
-    double trajectory_time_;
-    double time_point_[8];
     Eigen::MatrixXd kp_, kd_, ki_;
     Eigen::VectorXd error_sum_;
     Eigen::Vector<double, 7> q_;
+
+    double time_step_;
+    double trajectory_time_;
+    double time_point_[8];
 
     void controlLoop();
 
